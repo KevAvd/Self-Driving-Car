@@ -14,8 +14,8 @@ namespace SelfDrivingCar
     class Car
     {
         //Properties
-        float width = 30;
-        float height = 40;
+        const float width = 60;
+        const float height = 80;
         CarType type;
         bool dead = false;
 
@@ -38,7 +38,7 @@ namespace SelfDrivingCar
         const float ACCELERATION = 100;
 
         //Graphic properties
-        public Vertex[] vertices = new Vertex[4];
+        Vertex[] vertices = new Vertex[4];
 
         public float Width { get => width; }
         public float Height { get => height; }
@@ -53,6 +53,7 @@ namespace SelfDrivingCar
         public Vector2f Position { get => position; }
         public AABB Aabb { get => aabb; }
         public Ray Ray { get => ray; }
+        public Vertex[] Vertices { get => vertices; set => vertices = value; }
 
         //Enum
         public enum CarType
