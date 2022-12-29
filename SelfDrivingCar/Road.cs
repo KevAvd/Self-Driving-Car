@@ -11,25 +11,31 @@ namespace SelfDrivingCar
     internal class Road
     {
         AABB aabb;
-        float width = 55*3*2;
-        float height = 90*3*2;
-        float rotation = 0;
+        const float width = 600;
+        const float height = 800;
         Vector2f position = new Vector2f(0,0);
-        Vertex[] vertices;
-
-        public Vertex[] Vertices { get => vertices; set => vertices = value; }
+        Sprite sprite;
+        Texture textureRoad = new Texture("..\\..\\..\\..\\SpriteSheet_Road.png") { Repeated = true};
         public Vector2f Position { get => position; set => position = value; }
-        public float Rotation { get => rotation; set => rotation = value; }
-        public float Width { get => width; set => width = value; }
-        public float Height { get => height; set => height = value; }
+        public float Width { get => width; }
+        public float Height { get => height; }
 
-        public Road()
+        public Road(Vector2f pos)
         {
-            vertices = new Vertex[4];
-            vertices[0] = new Vertex(new Vector2f(-1,-1), new Color(255, 255, 255, 255), new Vector2f(00, 00));
-            vertices[1] = new Vertex(new Vector2f( 1,-1), new Color(255, 255, 255, 255), new Vector2f(22*3, 00));
-            vertices[2] = new Vertex(new Vector2f( 1, 1), new Color(255, 255, 255, 255), new Vector2f(22*3, 32));
-            vertices[3] = new Vertex(new Vector2f(-1, 1), new Color(255, 255, 255, 255), new Vector2f(00, 32));
+            sprite = new Sprite(textureRoad);
+            sprite.TextureRect = new IntRect(0, 0, 22*3, 32);
+            sprite.Scale = new Vector2f(width / (22*3), height / 32);
+            position = pos;
+        }
+
+        public void Update()
+        {
+            sprite.Position = position;
+        }
+
+        public void Draw(RenderTarget trgt)
+        {
+            trgt.Draw(sprite);
         }
     }
 }
