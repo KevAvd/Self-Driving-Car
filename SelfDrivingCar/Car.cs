@@ -18,6 +18,7 @@ namespace SelfDrivingCar
         const float height = 80;
         CarType type;
         bool dead = false;
+        bool old_dead = false;
 
         //Controls
         bool forwards = false;
@@ -32,6 +33,7 @@ namespace SelfDrivingCar
         AABB aabb;
         Ray ray;
         const float MAX_SPEED = 200;
+        const float MAX_SPEED_TRAFFIC = 100;
         const float MAX_SPEED_REVERSE = -50;
         const float TURN_RATE = 90;
         const float FRICTION = 50;
@@ -49,7 +51,7 @@ namespace SelfDrivingCar
         public float Width { get => width; }
         public float Height { get => height; }
         public CarType Type { get => type; }
-        public bool Dead { get => dead; }
+        public bool Dead { get => dead; set => dead = value; }
         public bool Forwards { get => forwards; set => forwards = value; }
         public bool Backwards { get => backwards; set => backwards = value; }
         public bool Left { get => left; set => left = value; }
@@ -96,8 +98,17 @@ namespace SelfDrivingCar
 
         public void Update()
         {
-            if(dead) return;
+            if(!old_dead && dead) 
+            { 
+                sprite = new Sprite(texture_AI_Dead);
+                sprite.Origin = new Vector2f(12 / 2, 16 / 2);
+                sprite.Scale = new Vector2f(width / 12, height / 16);
+                sprite.Position = position;
+                sprite.Rotation = rotation;
+                return; 
+            }
 
+            if (dead) return;
             switch (type)
             {
                 case CarType.AI: TYPE_AI(); break;
@@ -108,6 +119,7 @@ namespace SelfDrivingCar
             }
             sprite.Position = position;
             sprite.Rotation = rotation;
+            old_dead = dead;
         }
 
         public void Draw(RenderTarget trgt)
@@ -152,7 +164,8 @@ namespace SelfDrivingCar
 
         void TYPE_TRAFFIC()
         {
-
+            Vector2f velocity = GameMath.GetUnitVectorFromAngle(GameMath.ToRadian(rotation) - GameMath.ToRadian(90)) * MAX_SPEED_TRAFFIC;
+            position += velocity * GameTime.DeltaTimeU;
         }
     }
 

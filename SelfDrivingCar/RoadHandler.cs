@@ -13,6 +13,9 @@ namespace SelfDrivingCar
         Road[] roads = new Road[3];
         const float width = 600;
         const float height = 800;
+
+        public Road[] Roads { get => roads; }
+
         public RoadHandler() 
         {
             roads[0] = new Road(new Vector2f(-300,400));    
