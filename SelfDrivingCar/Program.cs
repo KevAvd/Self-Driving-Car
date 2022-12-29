@@ -6,7 +6,8 @@ using SelfDrivingCar;
 //Init
 RenderWindow window = new RenderWindow(new VideoMode(800, 600), "My window");
 Inputs.Window = window;
-Renderer.States = new RenderStates(new Texture("..\\..\\..\\..\\SpriteSheet.png"));
+Renderer.States1 = new RenderStates(new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png") { Repeated = true});
+Renderer.States2 = new RenderStates(new Texture("..\\..\\..\\..\\SpriteSheet_Road.png") { Repeated = true});
 Renderer.Target = window;
 Renderer.Camera = new Camera(new Vector2f(0,0), (Vector2f)window.Size);
 GameTime.StartClock();
@@ -15,6 +16,8 @@ GameTime.SetUpdateRate(200);
 int fps = 0;
 int ups = 0;
 
+Road[] roads = new Road[1];
+roads[0] = new Road();
 Car[] cars = new Car[1];
 cars[0] = new Car(new Vector2f(0, 0), Car.CarType.AI);
 
@@ -37,10 +40,7 @@ while (window.IsOpen)
         if (Inputs.IsClicked(Keyboard.Key.F4)) { window.Close(); }
 
         //Update camera
-        Renderer.Camera.Move_Up = Keyboard.IsKeyPressed(Keyboard.Key.Up);
-        Renderer.Camera.Move_Left = Keyboard.IsKeyPressed(Keyboard.Key.Left);
-        Renderer.Camera.Move_Down = Keyboard.IsKeyPressed(Keyboard.Key.Down);
-        Renderer.Camera.Move_Right = Keyboard.IsKeyPressed(Keyboard.Key.Right);
+        Renderer.Camera.Center = cars[0].Position;
         if (Inputs.IsClicked(Keyboard.Key.V))
             Renderer.Camera.Zoom(2);
         if (Inputs.IsClicked(Keyboard.Key.C))
@@ -71,6 +71,8 @@ while (window.IsOpen)
     //Render
     if (GameTime.DeltaTimeF >= GameTime.FrameRate)
     {
+        window.Clear(Renderer.ClearColor);
+        Renderer.LOAD_ROAD_VERTICES(roads);
         Renderer.LOAD_CAR_VERTICES(cars);
         Renderer.Draw();
         window.Display();
