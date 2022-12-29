@@ -6,20 +6,16 @@ using SelfDrivingCar;
 //Init
 RenderWindow window = new RenderWindow(new VideoMode(800, 600), "My window");
 Inputs.Window = window;
-Renderer.States1 = new RenderStates(new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png") { Repeated = true});
-Renderer.States2 = new RenderStates(new Texture("..\\..\\..\\..\\SpriteSheet_Road.png") { Repeated = true});
-Renderer.Target = window;
-Renderer.Camera = new Camera(new Vector2f(0,0), (Vector2f)window.Size);
+View view = new View() { Center = new Vector2f(0,0), Size = (Vector2f)window.Size};
 GameTime.StartClock();
 GameTime.SetFrameRate(144);
 GameTime.SetUpdateRate(200);
 int fps = 0;
 int ups = 0;
 
-Road[] roads = new Road[1];
-roads[0] = new Road();
+RoadHandler roadHandler = new RoadHandler();
 Car[] cars = new Car[1];
-cars[0] = new Car(new Vector2f(0, 0), Car.CarType.AI);
+cars[0] = new Car(new Vector2f(0,0), Car.CarType.AI);
 
 //Game loop
 while (window.IsOpen)
@@ -39,14 +35,6 @@ while (window.IsOpen)
         //Close window (F4)
         if (Inputs.IsClicked(Keyboard.Key.F4)) { window.Close(); }
 
-        //Update camera
-        Renderer.Camera.Center = cars[0].Position;
-        if (Inputs.IsClicked(Keyboard.Key.V))
-            Renderer.Camera.Zoom(2);
-        if (Inputs.IsClicked(Keyboard.Key.C))
-            Renderer.Camera.Zoom(2, true);
-        Renderer.Camera.UpdateCam();
-
         //Update cars
         for(int i = 0; i < cars.Length; i++)
         {
@@ -61,6 +49,20 @@ while (window.IsOpen)
             cars[i].Update();
         }
 
+        //Update view
+        view.Center = cars[0].Position;
+        if (Inputs.IsClicked(Keyboard.Key.C))
+        {
+            view.Size = GameMath.ScaleVector(view.Size, new Vector2f(2, 2));
+        }
+        if (Inputs.IsClicked(Keyboard.Key.V))
+        {
+            view.Size = GameMath.ScaleVector(view.Size, new Vector2f(2, 2),true);
+        }
+
+        //Update roads
+        roadHandler.Update(cars[0]);
+
         //Increment update counter
         ups++;
 
@@ -71,10 +73,10 @@ while (window.IsOpen)
     //Render
     if (GameTime.DeltaTimeF >= GameTime.FrameRate)
     {
-        window.Clear(Renderer.ClearColor);
-        Renderer.LOAD_ROAD_VERTICES(roads);
-        Renderer.LOAD_CAR_VERTICES(cars);
-        Renderer.Draw();
+        window.Clear(new Color(100,100,100));
+        window.SetView(view);
+        roadHandler.Draw(window);
+        foreach (Car car in cars) { car.Draw(window); }
         window.Display();
 
         //Increment frame counter
@@ -90,6 +92,7 @@ while (window.IsOpen)
         Console.SetCursorPosition(0, 0);
         Console.WriteLine($"[FRAME/SECOND] {fps}");
         Console.WriteLine($"[UPDATE/SECOND] {ups}");
+        Console.WriteLine($"[CAR POS]{cars[0].Position}                         ");
         fps = 0;
         ups = 0;
     }
