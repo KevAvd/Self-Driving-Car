@@ -4,7 +4,7 @@ using SFML.Window;
 using SelfDrivingCar;
 
 //Init
-RenderWindow window = new RenderWindow(new VideoMode(800, 600), "My window");
+RenderWindow window = new RenderWindow(new VideoMode(800, 600), "My window", Styles.Default, new ContextSettings() { AntialiasingLevel = 4});
 Inputs.Window = window;
 View view = new View() { Center = new Vector2f(0,0), Size = (Vector2f)window.Size};
 GameTime.StartClock();
@@ -15,7 +15,7 @@ int ups = 0;
 RoadHandler roadHandler = new RoadHandler();
 List<Car> cars = new List<Car>();
 cars.Add(new Car(new Vector2f(0, 0), Car.CarType.AI));
-cars.AddRange(GenerateTraffic(roadHandler,3));
+cars.AddRange(GenerateTraffic(roadHandler,8));
 
 //Game loop
 while (window.IsOpen)
@@ -60,6 +60,7 @@ while (window.IsOpen)
             if (cars[i].Position.X > 300 || cars[i].Position.X < -300) { cars[i].Dead = true; }
         }
 
+        //Remove dead traffic
         for(int i = cars.Count - 1; i >= 0; i--) 
         {
             if (cars[i].Type != Car.CarType.AI && cars[i].Dead)
@@ -67,6 +68,7 @@ while (window.IsOpen)
                 cars.Remove(cars[i]);
             }
         }
+
         //Update view
         view.Center = cars[0].Position;
         if (Inputs.IsClicked(Keyboard.Key.C))
@@ -118,17 +120,43 @@ while (window.IsOpen)
 
 Car[] GenerateTraffic(RoadHandler roadHandler, int nbr)
 {
-    List<int> lanes = new List<int>(){ -200, 0, 200 };
-    int[] offset = { 20, 400, 200 };
-    if(nbr > 3) { nbr = 3; }
-    List<Car> list = new List<Car>();
+    List<Car> traffic = new List<Car>();
+    nbr = Math.Clamp(nbr, 1, 12);
+    Vector2f roadPos = roadHandler.Roads[2].Position;
+    float carWidth = cars[0].Width;
+    float carHeigth = cars[0].Height;
+
+    //Contains all possible position for spawning a traffic car
+    List<Vector2f> possiblePosition = new List<Vector2f>()
+    {
+        //First lane
+        new Vector2f(-200,roadPos.Y+(carHeigth+20)*1),
+        new Vector2f(-200,roadPos.Y+(carHeigth+20)*3),
+        new Vector2f(-200,roadPos.Y+(carHeigth+20)*5),
+        new Vector2f(-200,roadPos.Y+(carHeigth+20)*7),
+
+        //Second lane
+        new Vector2f(0000,roadPos.Y+(carHeigth+20)*1),
+        new Vector2f(0000,roadPos.Y+(carHeigth+20)*3),
+        new Vector2f(0000,roadPos.Y+(carHeigth+20)*5),
+        new Vector2f(0000,roadPos.Y+(carHeigth+20)*7),
+
+        //Third lane
+        new Vector2f(0200,roadPos.Y+(carHeigth+20)*1),
+        new Vector2f(0200,roadPos.Y+(carHeigth+20)*3),
+        new Vector2f(0200,roadPos.Y+(carHeigth+20)*5),
+        new Vector2f(0200,roadPos.Y+(carHeigth+20)*7)
+    };
 
     for(int i = 0; i < nbr; i++)
     {
-        int lane = GameMath.Rnd.Next(0, lanes.Count);
-        list.Add(new Car(new Vector2f(lanes[lane], roadHandler.Roads[1].Position.Y - offset[GameMath.Rnd.Next(0, offset.Length)]), (Car.CarType)GameMath.Rnd.Next(1, 5)));
-        lanes.Remove(lanes[lane]);
+        int carType = GameMath.Rnd.Next(1, 5);
+        int carPos = GameMath.Rnd.Next(0, possiblePosition.Count);
+        traffic.Add(new Car(possiblePosition[carPos], (Car.CarType)carType));
+        possiblePosition.Remove(possiblePosition[carPos]);
     }
-    return list.ToArray();
+
+    return traffic.ToArray();
 }
+
 

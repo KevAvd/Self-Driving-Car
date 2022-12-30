@@ -40,13 +40,13 @@ namespace SelfDrivingCar
         const float ACCELERATION = 100;
 
         //Graphic properties
-        Sprite sprite;
-        Texture texture_AI = new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png", new IntRect(0, 0, 12, 16));
-        Texture texture_AI_Dead = new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png", new IntRect(12, 0, 12, 16));
-        Texture texture1 = new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png", new IntRect(24, 0, 12, 16));
-        Texture texture2 = new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png", new IntRect(0, 16, 12, 16));
-        Texture texture3 = new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png", new IntRect(12, 16, 12, 16));
-        Texture texture4 = new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png", new IntRect(24, 16, 12, 16));
+        Sprite sprite = new Sprite(new Texture("..\\..\\..\\..\\SpriteSheet_Cars.png"));
+        IntRect AI_Coords = new IntRect(0, 0, 12, 16);
+        IntRect AI_Dead_Coords = new IntRect(12, 0, 12, 16);
+        IntRect traffic1_Coords = new IntRect(24, 0, 12, 16);
+        IntRect traffic2_Coords = new IntRect(0, 16, 12, 16);
+        IntRect traffic3_Coords = new IntRect(12, 16, 12, 16);
+        IntRect traffic4_Coords = new IntRect(24, 16, 12, 16);
 
         public float Width { get => width; }
         public float Height { get => height; }
@@ -76,19 +76,19 @@ namespace SelfDrivingCar
             switch (type)
             {
                 case CarType.AI:
-                    sprite = new Sprite(texture_AI);
+                    sprite.TextureRect = AI_Coords;
                     break;
                 case CarType.Traffic1:
-                    sprite = new Sprite(texture1);
+                    sprite.TextureRect = traffic1_Coords;
                     break;
                 case CarType.Traffic2:
-                    sprite = new Sprite(texture2);
+                    sprite.TextureRect = traffic2_Coords;
                     break;
                 case CarType.Traffic3:
-                    sprite = new Sprite(texture3);
+                    sprite.TextureRect = traffic3_Coords;
                     break;
                 case CarType.Traffic4:
-                    sprite = new Sprite(texture4);
+                    sprite.TextureRect = traffic4_Coords;
                     break;
             }
 
@@ -98,9 +98,10 @@ namespace SelfDrivingCar
 
         public void Update()
         {
+            //Handle die event
             if(!old_dead && dead) 
-            { 
-                sprite = new Sprite(texture_AI_Dead);
+            {
+                sprite.TextureRect = AI_Dead_Coords;
                 sprite.Origin = new Vector2f(12 / 2, 16 / 2);
                 sprite.Scale = new Vector2f(width / 12, height / 16);
                 sprite.Position = position;
@@ -108,7 +109,16 @@ namespace SelfDrivingCar
                 return; 
             }
 
+            //Don't update car if dead
             if (dead) return;
+
+            //Update Axis-Align Bounding Box
+            aabb.p1 = position + new Vector2f(-width/2, -height/2);
+            aabb.p2 = position + new Vector2f(width/2, -height/2);
+            aabb.p3 = position + new Vector2f(width/2, height/2);
+            aabb.p4 = position + new Vector2f(-width/2, height/2);
+
+            //Switch car behavior
             switch (type)
             {
                 case CarType.AI: TYPE_AI(); break;
@@ -117,8 +127,12 @@ namespace SelfDrivingCar
                 case CarType.Traffic3:
                 case CarType.Traffic4: TYPE_TRAFFIC(); break;
             }
+
+            //Update sprite
             sprite.Position = position;
             sprite.Rotation = rotation;
+
+            //Update old dead state
             old_dead = dead;
         }
 
@@ -152,14 +166,9 @@ namespace SelfDrivingCar
             Vector2f velocity = GameMath.GetUnitVectorFromAngle(GameMath.ToRadian(rotation) - GameMath.ToRadian(90)) * speed;
             position += velocity * GameTime.DeltaTimeU;
 
-            if (speed > 0)
-            {
-                speed -= FRICTION * GameTime.DeltaTimeU;
-            }
-            if (speed < 0)
-            {
-                speed += FRICTION * GameTime.DeltaTimeU;
-            }
+            //Apply friction
+            if (speed > 0) speed -= FRICTION * GameTime.DeltaTimeU;
+            if (speed < 0) speed += FRICTION * GameTime.DeltaTimeU;
         }
 
         void TYPE_TRAFFIC()

@@ -15,7 +15,7 @@ namespace SelfDrivingCar
         const float height = 800;
         Vector2f position = new Vector2f(0,0);
         Sprite sprite;
-        Texture textureRoad = new Texture("..\\..\\..\\..\\SpriteSheet_Road.png") { Repeated = true};
+        Texture textureRoad = new Texture("..\\..\\..\\..\\SpriteSheet_Road.png") { Repeated = true };
         public Vector2f Position { get => position; set => position = value; }
         public float Width { get => width; }
         public float Height { get => height; }
