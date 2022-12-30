@@ -32,6 +32,7 @@ namespace SelfDrivingCar
         {
             this.position = position;
             this.type = type;
+            Update();
         }
 
         public void Update()

@@ -41,6 +41,8 @@ namespace SelfDrivingCar
             }
             for(int i = 0; i < ai_cars.Count; i++)
             {
+                if (ai_cars[i].Dead) { continue; }
+
                 //Update controls
                 ai_cars[i].Forwards = Inputs.IsPressed(Keyboard.Key.W);
                 ai_cars[i].Left = Inputs.IsPressed(Keyboard.Key.A);
@@ -52,8 +54,27 @@ namespace SelfDrivingCar
 
                 //Kill car if it leave road
                 if (ai_cars[i].Position.X > 300 || ai_cars[i].Position.X < -300) { ai_cars[i].Dead = true; }
-            }
 
+                //Reset sensors
+                ai_cars[i].ResetSensor();
+                
+                //Sensors check road limit
+                for(int j = 0; j < ai_cars[i].Rays.Length; j++)
+                {
+                    if (ai_cars[i].Rays[j].p2.X > 300 || ai_cars[i].Rays[j].p2.X < -300)
+                        ai_cars[i].Sensor[j] = 1;
+                }
+
+                //Handle collisions
+                for (int j = 0; j < traffic.Count; j++)
+                {
+                    if (CollisionDetection.AABB_AABB(ai_cars[i].AABB, traffic[j].AABB)) 
+                        ai_cars[i].Dead = true;
+                    for (int k = 0; k < ai_cars[i].Rays.Length; k++)
+                        if (CollisionDetection.AABB_RAY(traffic[j].AABB, ai_cars[i].Rays[k]))
+                            ai_cars[i].Sensor[k] = 1;
+                }
+            }
             //Update road
             road.Update(ai_cars[focused_ai]);
         }
@@ -64,10 +85,18 @@ namespace SelfDrivingCar
 
             foreach (AI_Car car in ai_cars)
             {
-                Globals.SPRITE_CAR.TextureRect = Globals.AI_TEXCOORDS;
+                Globals.SPRITE_CAR.TextureRect = car.Dead ? Globals.AIDEAD_TEXCOORDS : Globals.AI_TEXCOORDS;
                 Globals.SPRITE_CAR.Position = car.Position;
                 Globals.SPRITE_CAR.Rotation = car.Rotation;
                 trgt.Draw(Globals.SPRITE_CAR);
+
+                for(int i = 0; i < car.Rays.Length; i++)
+                {
+                    Color color = car.Sensor[i] == 1 ? Color.Black : Color.Green;
+                    Vertex v1 = new Vertex(car.Rays[i].p1, color);
+                    Vertex v2 = new Vertex(car.Rays[i].p2, color);
+                    trgt.Draw(new Vertex[] {v1, v2}, PrimitiveType.Lines);
+                }
             }
 
             foreach (Traffic_Car car in traffic)
