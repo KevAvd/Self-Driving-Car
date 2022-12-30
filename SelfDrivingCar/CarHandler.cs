@@ -57,6 +57,13 @@ namespace SelfDrivingCar
 
                 //Reset sensors
                 ai_cars[i].ResetSensor();
+                
+                //Sensors check road limit
+                for(int j = 0; j < ai_cars[i].Rays.Length; j++)
+                {
+                    if (ai_cars[i].Rays[j].p2.X > 300 || ai_cars[i].Rays[j].p2.X < -300)
+                        ai_cars[i].Sensor[j] = 1;
+                }
 
                 //Handle collisions
                 for (int j = 0; j < traffic.Count; j++)
