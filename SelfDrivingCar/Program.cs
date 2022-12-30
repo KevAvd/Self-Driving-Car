@@ -17,6 +17,7 @@ int ups = 0;
 CarHandler carHndlr = new CarHandler();
 carHndlr.Creat_AI_Car(new Vector2f(0, 0));
 carHndlr.GenerateTraffic(8);
+Color clearColor = new Color(100, 100, 100);
 
 //Game loop
 while (window.IsOpen)
@@ -60,7 +61,7 @@ while (window.IsOpen)
     //Render
     if (GameTime.DeltaTimeF >= GameTime.FrameRate)
     {
-        window.Clear(new Color(100,100,100));
+        window.Clear(clearColor);
         window.SetView(view);
         carHndlr.Draw(window);
         window.Display();
@@ -78,7 +79,6 @@ while (window.IsOpen)
         Console.SetCursorPosition(0, 0);
         Console.WriteLine($"[FRAME/SECOND] {fps}");
         Console.WriteLine($"[UPDATE/SECOND] {ups}");
-        Console.WriteLine($"[CAR POS]{carHndlr.Focused_AI.Position}                         ");
         fps = 0;
         ups = 0;
     }

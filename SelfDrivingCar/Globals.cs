@@ -10,6 +10,9 @@ namespace SelfDrivingCar
 {
     static class Globals
     {
+        public const float RAY_LENGTH = 100;
+        public const float RAY_FIELD = 90;
+        public const int RAY_NBR = 6;
         public const float ROAD_WIDTH = 600;
         public const float ROAD_HEIGHT = 800;
         public const float CAR_WIDTH = 60;
