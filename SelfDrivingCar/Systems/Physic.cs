@@ -9,9 +9,12 @@ namespace SelfDrivingCar
 {
     static class CollisionDetection
     {
-        public static bool AABB_RAY(AABB box1, Ray ray)
+
+        public static bool AABB_SENSOR(AABB box1, Sensor sensor, out Vector2f pNear)
         {
-            return AABB_RAY(box1, ray, out Vector2f pNear, out Vector2f pFar, out Vector2f normal);
+            bool collided = AABB_RAY(box1, new Ray { p1 = sensor.p1, p2 = sensor.p2 }, out Vector2f pNear2, out Vector2f pFar, out Vector2f normal);
+            pNear = pNear2;
+            return collided;
         }
 
         /// <summary>
@@ -110,5 +113,14 @@ namespace SelfDrivingCar
     {
         public Vector2f p1;
         public Vector2f p2;
+    }
+
+    struct Sensor
+    {
+        public Vector2f hitPoint;
+        public Vector2f p1;
+        public Vector2f p2;
+        public float value;
+        public bool hitted;
     }
 }

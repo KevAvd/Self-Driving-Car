@@ -11,10 +11,8 @@ namespace SelfDrivingCar
 {
     internal class AI_Car
     {
-        //Properties
         bool dead = false;
-        CarBrain brain = new CarBrain();
-        float totalSeconds = 0;
+
         //Controls
         bool forwards = false;
         bool backwards = false;
@@ -26,11 +24,9 @@ namespace SelfDrivingCar
         float speed = 0;
         Vector2f position;
         AABB aabb;
-        Ray[] rays = new Ray[Globals.RAY_NBR];
-        int[] sensor = new int[Globals.RAY_NBR];
+        Sensor[] sensor = new Sensor[Globals.RAY_NBR];
 
         //Getters-Setters
-        public bool Dead { get => dead; set => dead = value; }
         public bool Forwards { get => forwards; set => forwards = value; }
         public bool Backwards { get => backwards; set => backwards = value; }
         public bool Left { get => left; set => left = value; }
@@ -39,28 +35,9 @@ namespace SelfDrivingCar
         public float Speed { get => speed; }
         public Vector2f Position { get => position; }
         public AABB AABB { get => aabb; }
-        public Ray[] Rays { get => rays; }
-        public int[] Sensor { get => sensor; set => sensor = value; }
-        public CarBrain Brain { get => brain; }
-        public float TotalSeconds { get => totalSeconds; set => totalSeconds = value; }
+        public Sensor[] Sensor { get => sensor; set => sensor = value; }
+        public bool Dead { get => dead; set => dead = value; }
 
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="position"> Car position </param>
-        /// <param name="brain"> Car brain </param>
-        public AI_Car(Vector2f position, float[,] w1, float[] b1, float[,] w2, float[] b2, bool mutate)
-        {
-            this.position = position;
-            brain = new CarBrain();
-            Array.Copy(w1, brain.Layer1.Weights, w1.Length);
-            Array.Copy(b1, brain.Layer1.Biases, b1.Length);
-            Array.Copy(w2, brain.Layer2.Weights, w2.Length);
-            Array.Copy(b2, brain.Layer2.Biases, b2.Length);
-            if (mutate) { brain.Mutate(); }
-            Update();
-        }
 
         /// <summary>
         /// Constructor
@@ -69,20 +46,11 @@ namespace SelfDrivingCar
         public AI_Car(Vector2f position)
         {
             this.position = position;
-            brain = new CarBrain();
-            brain.Randomize();
             Update();
         }
 
         public void Update()
         {
-            brain.ProcessInput(new float[] { sensor[0], sensor[1], sensor[2], sensor[3], sensor[4], sensor[5] });
-
-            forwards = brain.Forward;
-            backwards = brain.Backward;
-            left = brain.Left;
-            right = brain.Right;
-
             //Handle controls
             if (forwards)
             {
@@ -118,13 +86,13 @@ namespace SelfDrivingCar
             aabb.p4 = position + new Vector2f(-Globals.CAR_WIDTH / 3, Globals.CAR_HEIGHT / 3);
 
             //Update Rays
-            float deltaAngle = GameMath.ToRadian(Globals.RAY_FIELD / (rays.Length - 1));
-            float currentAngle = GameMath.ToRadian(rotation - Globals.RAY_FIELD / 2);
+            float deltaAngle = GameMath.ToRadian(Globals.RAY_FIELD / (sensor.Length - 1));
+            float currentAngle = GameMath.ToRadian(rotation - Globals.RAY_FIELD / 2) + deltaAngle/2;
             Vector2f startPoint = position + GameMath.GetUnitVectorFromAngle(GameMath.ToRadian(rotation - 90)) * (Globals.CAR_HEIGHT / 2);
-            for (int i = 0; i < rays.Length; i++)
+            for (int i = 0; i < sensor.Length; i++)
             {
-                rays[i].p1 = startPoint;
-                rays[i].p2 = GameMath.GetUnitVectorFromAngle(currentAngle) * Globals.RAY_LENGTH + startPoint;
+                sensor[i].p1 = startPoint;
+                sensor[i].p2 = GameMath.GetUnitVectorFromAngle(currentAngle) * Globals.RAY_LENGTH + startPoint;
                 currentAngle -= deltaAngle;
             }
         }
@@ -133,7 +101,8 @@ namespace SelfDrivingCar
         {
             for (int i = 0; i < sensor.Length; i++)
             {
-                sensor[i] = 0;
+                sensor[i].value = 0;
+                sensor[i].hitted = false;
             }
         }
     }

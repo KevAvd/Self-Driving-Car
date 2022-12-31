@@ -2,6 +2,7 @@
 using SFML.Graphics;
 using SFML.Window;
 using SelfDrivingCar;
+using SelfDrivingCar.Simulation;
 
 //Init
 Console.CursorVisible = false;
@@ -15,7 +16,7 @@ int fps = 0;
 int ups = 0;
 
 //Init car handler
-CarHandler carHndlr = new CarHandler();
+Simulation sim = new Simulation();
 Color clearColor = new Color(100, 100, 100);
 
 //Game loop
@@ -37,10 +38,10 @@ while (window.IsOpen)
         if (Inputs.IsClicked(Keyboard.Key.F4)) { window.Close(); }
 
         //Update game
-        carHndlr.Update();
+        sim.Update();
 
         //Update view
-        view.Center = carHndlr.Focused_AI.Position;
+        view.Center = sim.Focused_AI.Position;
         if (Inputs.IsClicked(Keyboard.Key.C))
         {
             view.Size = GameMath.ScaleVector(view.Size, new Vector2f(2, 2));
@@ -62,7 +63,7 @@ while (window.IsOpen)
     {
         window.Clear(clearColor);
         window.SetView(view);
-        carHndlr.Draw(window);
+        sim.Draw(window);
         window.Display();
 
         //Increment frame counter
@@ -76,10 +77,10 @@ while (window.IsOpen)
     {
         GameTime.ResetAccumulator();
         Console.SetCursorPosition(0, 0);
-        Console.WriteLine($"[FRAME/SECOND] {fps*10}");
-        Console.WriteLine($"[UPDATE/SECOND] {ups*10}");
-        Console.WriteLine($"[GENERATION] {carHndlr.Generation}");
-        carHndlr.Focused_AI.Brain.WriteLine();
+        Console.WriteLine($"[FRAME/SECOND] {fps*10}     ");
+        Console.WriteLine($"[UPDATE/SECOND] {ups*10}    ");
+        Console.WriteLine($"[GENERATION] {sim.Generation}           ");
+        Console.WriteLine($"[NBR AI] {sim.NbrAI}                    ");
         fps = 0;
         ups = 0;
     }
