@@ -85,7 +85,7 @@ namespace SelfDrivingCar.NeuralNet
             string genomeString = "[LAYER 1]\n";
             for(int i = 0; i < bestGenome.b1.Length; i++)
             {
-                genomeString += $"[BIAS {i}] {bestGenome.b1[0]}\n";
+                genomeString += $"[BIAS {i}] {bestGenome.b1[i]}\n";
             }
             for (int i = 0; i < bestGenome.w1.GetLength(0); i++)
             {
@@ -97,7 +97,7 @@ namespace SelfDrivingCar.NeuralNet
             genomeString += "[LAYER 2]\n";
             for (int i = 0; i < bestGenome.b2.Length; i++)
             {
-                genomeString += $"[BIAS {i}] {bestGenome.b2[0]}\n";
+                genomeString += $"[BIAS {i}] {bestGenome.b2[i]}\n";
             }
             for (int i = 0; i < bestGenome.w2.GetLength(0); i++)
             {
@@ -109,7 +109,7 @@ namespace SelfDrivingCar.NeuralNet
             genomeString += "[LAYER 3]\n";
             for (int i = 0; i < bestGenome.b3.Length; i++)
             {
-                genomeString += $"[BIAS {i}] {bestGenome.b3[0]}\n";
+                genomeString += $"[BIAS {i}] {bestGenome.b3[i]}\n";
             }
             for (int i = 0; i < bestGenome.w3.GetLength(0); i++)
             {
