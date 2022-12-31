@@ -11,6 +11,7 @@ namespace SelfDrivingCar
     {
         static float _dt = 0;
         static float _accumulator = 0;
+        static float _roadAcc = 0;
         static float _frameAcc = 0;
         static float _updateAcc = 0;
         static float _frameRate = 1f / 60f;
@@ -26,6 +27,11 @@ namespace SelfDrivingCar
         /// Get accumulator
         /// </summary>
         public static float Accumulator { get => _accumulator; }
+
+        /// <summary>
+        /// Get accumulator
+        /// </summary>
+        public static float RoadAccu { get => _roadAcc; }
 
         /// <summary>
         /// Get frame delta time
@@ -71,6 +77,7 @@ namespace SelfDrivingCar
             _accumulator += _dt;
             _frameAcc += _dt;
             _updateAcc += _dt;
+            _roadAcc += _dt;
         }
 
         /// <summary>
@@ -79,6 +86,14 @@ namespace SelfDrivingCar
         public static void ResetAccumulator()
         {
             _accumulator = 0;
+        }
+
+        /// <summary>
+        /// Set road accumulator to zero
+        /// </summary>
+        public static void ResetRoadAccumulator()
+        {
+            _roadAcc = 0;
         }
 
         /// <summary>

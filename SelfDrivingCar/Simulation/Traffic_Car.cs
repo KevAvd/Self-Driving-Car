@@ -21,7 +21,7 @@ namespace SelfDrivingCar
 
         public enum CarType
         {
-            Traffic1, Traffic2, Traffic3, Traffic4
+            Traffic1, Traffic2, Traffic3, Traffic4, DeadTraffic
         }
 
         /// <summary>
@@ -37,14 +37,23 @@ namespace SelfDrivingCar
 
         public void Update()
         {
-            //Update position
-            position.Y -= Globals.MAX_SPEED_TRAFFIC * GameTime.DeltaTimeU;
+            switch (type)
+            {
+                case CarType.Traffic1:
+                case CarType.Traffic2:
+                case CarType.Traffic3:
+                case CarType.Traffic4:
+                    position.Y -= Globals.MAX_SPEED_TRAFFIC * GameTime.DeltaTimeU;
+                    break;
+                case CarType.DeadTraffic:
+                    break;
+            }
 
             //Update Axis-Align Bounding Box
             aabb.p1 = position + new Vector2f(-Globals.CAR_WIDTH / 2, -Globals.CAR_HEIGHT / 2);
-            aabb.p2 = position + new Vector2f( Globals.CAR_WIDTH / 2, -Globals.CAR_HEIGHT / 2);
-            aabb.p3 = position + new Vector2f( Globals.CAR_WIDTH / 2,  Globals.CAR_HEIGHT / 2);
-            aabb.p4 = position + new Vector2f(-Globals.CAR_WIDTH / 2,  Globals.CAR_HEIGHT / 2);
+            aabb.p2 = position + new Vector2f(Globals.CAR_WIDTH / 2, -Globals.CAR_HEIGHT / 2);
+            aabb.p3 = position + new Vector2f(Globals.CAR_WIDTH / 2, Globals.CAR_HEIGHT / 2);
+            aabb.p4 = position + new Vector2f(-Globals.CAR_WIDTH / 2, Globals.CAR_HEIGHT / 2);
         }
     }
 }
