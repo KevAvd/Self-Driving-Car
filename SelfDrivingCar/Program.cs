@@ -4,6 +4,7 @@ using SFML.Window;
 using SelfDrivingCar;
 
 //Init
+Console.CursorVisible = false;
 RenderWindow window = new RenderWindow(new VideoMode(800, 600), "My window", Styles.Default, new ContextSettings() { AntialiasingLevel = 4});
 Inputs.Window = window;
 View view = new View() { Center = new Vector2f(0,0), Size = (Vector2f)window.Size};
@@ -15,8 +16,6 @@ int ups = 0;
 
 //Init car handler
 CarHandler carHndlr = new CarHandler();
-carHndlr.Creat_AI_Car(new Vector2f(0, 0));
-carHndlr.GenerateTraffic(8);
 Color clearColor = new Color(100, 100, 100);
 
 //Game loop
@@ -73,12 +72,14 @@ while (window.IsOpen)
         GameTime.ResetFrameAcc();
     }
 
-    if(GameTime.Accumulator >= 1)
+    if(GameTime.Accumulator >= 0.1)
     {
         GameTime.ResetAccumulator();
         Console.SetCursorPosition(0, 0);
-        Console.WriteLine($"[FRAME/SECOND] {fps}");
-        Console.WriteLine($"[UPDATE/SECOND] {ups}");
+        Console.WriteLine($"[FRAME/SECOND] {fps*10}");
+        Console.WriteLine($"[UPDATE/SECOND] {ups*10}");
+        Console.WriteLine($"[GENERATION] {carHndlr.Generation}");
+        carHndlr.Focused_AI.Brain.WriteLine();
         fps = 0;
         ups = 0;
     }

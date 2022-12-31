@@ -1,11 +1,11 @@
-﻿using SFML.Graphics;
+﻿using SelfDrivingCar.NeuralNet;
+using SFML.Graphics;
 using SFML.System;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SelfDrivingCar
 {
@@ -13,7 +13,8 @@ namespace SelfDrivingCar
     {
         //Properties
         bool dead = false;
-
+        CarBrain brain = new CarBrain();
+        float totalSeconds = 0;
         //Controls
         bool forwards = false;
         bool backwards = false;
@@ -40,7 +41,26 @@ namespace SelfDrivingCar
         public AABB AABB { get => aabb; }
         public Ray[] Rays { get => rays; }
         public int[] Sensor { get => sensor; set => sensor = value; }
+        public CarBrain Brain { get => brain; }
+        public float TotalSeconds { get => totalSeconds; set => totalSeconds = value; }
 
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="position"> Car position </param>
+        /// <param name="brain"> Car brain </param>
+        public AI_Car(Vector2f position, float[,] w1, float[] b1, float[,] w2, float[] b2, bool mutate)
+        {
+            this.position = position;
+            brain = new CarBrain();
+            Array.Copy(w1, brain.Layer1.Weights, w1.Length);
+            Array.Copy(b1, brain.Layer1.Biases, b1.Length);
+            Array.Copy(w2, brain.Layer2.Weights, w2.Length);
+            Array.Copy(b2, brain.Layer2.Biases, b2.Length);
+            if (mutate) { brain.Mutate(); }
+            Update();
+        }
 
         /// <summary>
         /// Constructor
@@ -49,11 +69,20 @@ namespace SelfDrivingCar
         public AI_Car(Vector2f position)
         {
             this.position = position;
+            brain = new CarBrain();
+            brain.Randomize();
             Update();
         }
 
         public void Update()
         {
+            brain.ProcessInput(new float[] { sensor[0], sensor[1], sensor[2], sensor[3], sensor[4], sensor[5] });
+
+            forwards = brain.Forward;
+            backwards = brain.Backward;
+            left = brain.Left;
+            right = brain.Right;
+
             //Handle controls
             if (forwards)
             {
@@ -76,7 +105,7 @@ namespace SelfDrivingCar
             speed = Math.Clamp(speed, Globals.MAX_SPEED_CAR_REVERSE, Globals.MAX_SPEED_CAR);
 
             //Apply velocity to position
-            position += (GameMath.GetUnitVectorFromAngle(GameMath.ToRadian(rotation) - GameMath.ToRadian(90)) * speed) * GameTime.DeltaTimeU;
+            position += GameMath.GetUnitVectorFromAngle(GameMath.ToRadian(rotation) - GameMath.ToRadian(90)) * speed * GameTime.DeltaTimeU;
 
             //Apply friction
             if (speed > 0) speed -= Globals.FRICTION * GameTime.DeltaTimeU;
@@ -84,13 +113,13 @@ namespace SelfDrivingCar
 
             //Update Axis-Align Bounding Box
             aabb.p1 = position + new Vector2f(-Globals.CAR_WIDTH / 3, -Globals.CAR_HEIGHT / 3);
-            aabb.p2 = position + new Vector2f( Globals.CAR_WIDTH / 3, -Globals.CAR_HEIGHT / 3);
-            aabb.p3 = position + new Vector2f( Globals.CAR_WIDTH / 3,  Globals.CAR_HEIGHT / 3);
-            aabb.p4 = position + new Vector2f(-Globals.CAR_WIDTH / 3,  Globals.CAR_HEIGHT / 3);
+            aabb.p2 = position + new Vector2f(Globals.CAR_WIDTH / 3, -Globals.CAR_HEIGHT / 3);
+            aabb.p3 = position + new Vector2f(Globals.CAR_WIDTH / 3, Globals.CAR_HEIGHT / 3);
+            aabb.p4 = position + new Vector2f(-Globals.CAR_WIDTH / 3, Globals.CAR_HEIGHT / 3);
 
             //Update Rays
-            float deltaAngle = GameMath.ToRadian(Globals.RAY_FIELD / (float)(rays.Length-1));
-            float currentAngle = GameMath.ToRadian(rotation- Globals.RAY_FIELD/2);
+            float deltaAngle = GameMath.ToRadian(Globals.RAY_FIELD / (rays.Length - 1));
+            float currentAngle = GameMath.ToRadian(rotation - Globals.RAY_FIELD / 2);
             Vector2f startPoint = position + GameMath.GetUnitVectorFromAngle(GameMath.ToRadian(rotation - 90)) * (Globals.CAR_HEIGHT / 2);
             for (int i = 0; i < rays.Length; i++)
             {
@@ -102,7 +131,7 @@ namespace SelfDrivingCar
 
         public void ResetSensor()
         {
-            for(int i = 0; i < sensor.Length; i++)
+            for (int i = 0; i < sensor.Length; i++)
             {
                 sensor[i] = 0;
             }

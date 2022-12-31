@@ -30,7 +30,18 @@ namespace SelfDrivingCar
 
         public void Update(AI_Car car)
         {
-            if(car.Position.Y < roads[1].Y)
+            if(GameTime.RoadAccu >= Globals.ROAD_TIME)
+            {
+                Vector2f temp1 = roads[1];
+                Vector2f temp2 = roads[2];
+                roads[0] -= new Vector2f(0, Globals.ROAD_HEIGHT * 3);
+                roads[2] = roads[0];
+                roads[1] = temp2;
+                roads[0] = temp1;
+                GameTime.ResetRoadAccumulator();
+                return;
+            }
+            if (car.Position.Y < roads[1].Y)
             {
                 Vector2f temp1 = roads[1];
                 Vector2f temp2 = roads[2];
@@ -39,20 +50,20 @@ namespace SelfDrivingCar
                 roads[1] = temp2;
                 roads[0] = temp1;
             }
-            if (car.Position.Y > roads[0].Y)
-            {
-                Vector2f temp0 = roads[0];
-                Vector2f temp1 = roads[1];
-                roads[2] += new Vector2f(0, Globals.ROAD_HEIGHT * 3);
-                roads[0] = roads[2];
-                roads[1] = temp0;
-                roads[2] = temp1;
-            }
+            //if (car.Position.Y > roads[0].Y)
+            //{
+            //    Vector2f temp0 = roads[0];
+            //    Vector2f temp1 = roads[1];
+            //    roads[2] += new Vector2f(0, Globals.ROAD_HEIGHT * 3);
+            //    roads[0] = roads[2];
+            //    roads[1] = temp0;
+            //    roads[2] = temp1;
+            //}
         }
 
         public void Draw(RenderTarget trgt)
         {
-            for(int i = 0; i < roads.Length; i++)
+            for (int i = 0; i < roads.Length; i++)
             {
                 Globals.SPRITE_ROAD.Position = roads[i];
                 trgt.Draw(Globals.SPRITE_ROAD);
